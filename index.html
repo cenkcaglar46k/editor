@@ -143,6 +143,28 @@ body{
   font-size: 12px;
 }
 
+#list .item.parent{
+  padding-left: 12px;
+}
+
+#list .item.parent > div{
+  display: none;
+}
+
+#list .item.parent::before{
+  content: '';
+  position: absolute;
+  top: 50%; left: 4px;
+  transform: translate(0, -50%);
+  background-color: #666;
+  width: 3px;
+  height: 18px;
+}
+
+#list .item.selected.parent::before{
+  background-color: #aaa;
+}
+
 button{
   padding: 10px;
   font-size: 14px;
@@ -260,6 +282,14 @@ elementList.addEventListener('click', (e)=>{
     e.target.classList.add('selected');
     selected = Array.from(elementList.querySelectorAll('.selected'));
     inputValue();
+  }
+});
+
+elementList.addEventListener('dblclick', (e)=>{
+  if(e.target.tagName == 'DIV' && Array.from(e.target.classList).includes('item')){
+    if(e.target.children.length > 1){
+      e.target.classList.toggle('parent');
+    }
   }
 });
 
