@@ -1,0 +1,333 @@
+<div id="container">
+  <div id="elementList">
+    <input type="text" class="inputStyle" id="createElement" placeholder="element-label">
+    <div id="list"></div>
+  </div>
+  <iframe id="iframe" srcdoc="<style></style><body></body>"></iframe>
+  <div id="propertyList">
+    <input type="text" class="inputStyle p1" placeholder="width">
+    <input type="text" class="inputStyle p1" placeholder="height">
+    <input type="text" class="inputStyle p1" placeholder="background-color">
+    <input type="text" class="inputStyle p1" placeholder="padding">
+    <input type="text" class="inputStyle p1" placeholder="margin">
+    <input type="text" class="inputStyle p1" placeholder="border">
+    <input type="text" class="inputStyle p1" placeholder="border-radius">
+    <input type="text" class="inputStyle p1" placeholder="font-size">
+    <input type="text" class="inputStyle p1" placeholder="text-align">
+    <input type="text" class="inputStyle p1" placeholder="color">
+    <input type="text" class="inputStyle p1" placeholder="box-shadow">
+    <input type="text" class="inputStyle p1" placeholder="position">
+    <input type="text" class="inputStyle p1" placeholder="top">
+    <input type="text" class="inputStyle p1" placeholder="left">
+    <input type="text" class="inputStyle p1" placeholder="right">
+    <input type="text" class="inputStyle p1" placeholder="bottom">
+    <input type="text" class="inputStyle p1" placeholder="transform">
+    <input type="text" class="inputStyle p1" placeholder="display">
+    <input type="text" class="inputStyle p1" placeholder="grid-template-columns">
+    <input type="text" class="inputStyle p1" placeholder="grid-template-rows">
+    <input type="text" class="inputStyle p1" placeholder="grid-column-gap">
+    <input type="text" class="inputStyle p1" placeholder="grid-row-gap">
+    <input type="text" class="inputStyle p2" placeholder="text">
+    <input type="text" class="inputStyle p2" placeholder="placeholder">
+    <input type="text" class="inputStyle p2" placeholder="value">
+  </div>
+</div>
+<div id="buttons">
+  <button class="button" id="noSel">noSel</button>
+  <button class="button" id="downloadHTML">downloadHTML</button>
+</div>
+
+<style>
+
+*{
+  padding: 0;
+  margin: 0;
+  outline: none;
+  box-sizing: border-box;
+}
+
+body{
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #222;
+}
+
+#container{
+  display: grid;
+  grid-template-columns: 240px 400px 240px;
+  // grid-template-columns: 240px 700px 240px;
+  grid-template-rows: 400px;
+  // grid-template-rows: 700px;
+  grid-column-gap: 10px;
+  margin-bottom: 11px;
+}
+
+#container > *{
+  border: none;
+  width: 100%;
+  height: 100%;
+  background-color: #333;
+}
+
+#elementList,
+#propertyList{
+  padding: 10px;
+  user-select: none;
+}
+
+.inputStyle{
+  padding: 6px;
+  font-size: 14px;
+  width: 100%;
+  font-family: "Sofia Sans Semi Condensed", sans-serif;
+  background-color: #222;
+  border: none;
+  color: #888;
+  margin-bottom: 5px;
+  border: 1px solid #222;
+}
+
+#propertyList > .inputStyle:last-child{
+  margin-bottom: 0;
+}
+
+.inputStyle:focus{
+  border: 1px solid #666;
+}
+
+.inputStyle::placeholder{
+  color: #555;
+}
+
+#createElement{
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+#list .item{
+  background-color: #222;
+  font-size: 14px;
+  padding: 6px;
+  font-family: "Sofia Sans Semi Condensed", sans-serif;
+  margin-bottom: 5px;
+  color: #888;
+  cursor: pointer;
+  border: 1px solid #222;
+}
+
+#list .item .item{
+  background-color: #161616;
+}
+
+#list .item .item:nth-child(2){
+  margin-top: 5px;
+}
+
+#list .item:last-child{
+  margin-bottom: 0;
+}
+
+#list .item.selected{
+  background-color: #444;
+  border: 1px solid #888;
+  color: #ddd;
+}
+
+#list .item.selected .tag{
+  color: #666;
+}
+
+#list .item .tag{
+  color: #444;
+  font-size: 12px;
+}
+
+button{
+  padding: 10px;
+  font-size: 14px;
+  font-family: "Sofia Sans Semi Condensed", sans-serif;
+  background-color: #333;
+  border: none;
+  color: #888;
+  border: 1px solid #222;
+  cursor: pointer;
+}
+
+button:focus{
+  border: 1px solid #888;
+  color: #aaa;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #484848; 
+}
+
+#propertyList{
+  overflow-y: auto;
+}
+
+</style>
+
+<script>
+
+const createElement = document.getElementById('createElement');
+const elementList = document.getElementById('list');
+const noSel = document.getElementById('noSel');
+const propertyList = document.getElementById('propertyList');
+const iframe = document.getElementById('iframe');
+const downloadHTML = document.getElementById('downloadHTML');
+var iframeDoc;
+var sifir = 0;
+var selected = [];
+var sheet, rules;
+var TFControl = false;
+
+iframe.addEventListener('load', ()=>{
+
+iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+sheet = iframeDoc.querySelector('style').sheet;
+rules = sheet.cssRules;
+
+document.addEventListener('keydown', (e)=>{
+  if(e.keyCode == 17){
+    TFControl = true;
+  }
+});
+
+document.addEventListener('keyup', (e)=>{
+  if(e.keyCode == 17){
+    TFControl = false;
+  }
+});
+
+createElement.addEventListener('keydown', (e)=>{
+  if(e.keyCode == 13){
+    var keys = e.target.value.split('-');
+    if(selected.length > 0){
+      for(let i=0; i<selected.length; i++){
+        createElementList(keys[0], keys[1], sifir, selected[i]);
+        createElementIframe(keys[0], sifir, selected[i]);
+        sheet.insertRule(`[data-id="${sifir}"]{}`, rules.length);
+        sifir++;
+      }
+    } else{
+      createElementList(keys[0], keys[1], sifir);
+      createElementIframe(keys[0], sifir);
+      sheet.insertRule(`[data-id="${sifir}"]{}`, rules.length);
+      sifir++;
+    }
+  }
+});
+
+function createElementList(type, label, id, selector){
+  const element = document.createElement('div');
+  element.classList.add('item');
+  element.setAttribute('data-id', id);
+  element.textContent = label;
+  const span = document.createElement('span');
+  span.classList.add('tag');
+  span.textContent = ' #'+type;
+
+  element.appendChild(span);
+  if(selector == undefined){
+      elementList.appendChild(element);
+  } else{
+    selector.appendChild(element);
+  }
+}
+
+function createElementIframe(type, id, selector){
+  const element = iframeDoc.createElement(type);
+  element.setAttribute('data-id', id);
+
+  if(selector == undefined){
+    iframeDoc.body.appendChild(element);
+  } else{
+    iframeDoc.querySelector(`[data-id="${selector.dataset.id}"]`).appendChild(element);
+  }
+}
+
+elementList.addEventListener('click', (e)=>{
+  if(e.target.tagName == 'DIV' && Array.from(e.target.classList).includes('item')){
+    if(!TFControl){
+      Array.from(elementList.querySelectorAll('.item')).forEach(item=>{item.classList.remove('selected')});
+    }
+    e.target.classList.add('selected');
+    selected = Array.from(elementList.querySelectorAll('.selected'));
+    inputValue();
+  }
+});
+
+propertyList.addEventListener('input', (e)=>{
+  if(e.target.tagName == 'INPUT' && Array.from(e.target.classList).includes('p1')){
+    for(let i=0; i<selected.length; i++){
+      rules[selected[i].dataset.id].style[e.target.placeholder] = e.target.value;
+    }
+  } else if(e.target.tagName == 'INPUT' && Array.from(e.target.classList).includes('p2')){
+    for(let i=0; i<selected.length; i++){
+      if(e.target.placeholder == 'text'){
+        iframeDoc.querySelector(`[data-id="${selected[i].dataset.id}"]`).textContent = e.target.value;
+        // console.log(iframeDoc.querySelector(`data-id="${selected[i].dataset.id}"`));
+      } else{
+        iframeDoc.querySelector(`[data-id="${selected[i].dataset.id}"]`).setAttribute(e.target.placeholder, e.target.value);
+        // console.log(iframeDoc.querySelector(`data-id="${selected[i].dataset.id}"`));
+      }
+    }
+  }
+});
+
+noSel.addEventListener('click', ()=>{
+  Array.from(elementList.querySelectorAll('.item')).forEach(item=>{item.classList.remove('selected')});
+  selected = [];
+});
+
+function inputValue(){
+  var p1 = propertyList.querySelectorAll('.p1');
+  var p2 = propertyList.querySelectorAll('.p2');
+  console.log(p1, p2);
+
+  p1.forEach(input => {
+    input.value = '';
+    input.value = rules[selected[0].dataset.id].style[input.placeholder];
+  });
+
+  p2.forEach(input => {
+    input.value = '';
+    if(input.placeholder == 'text'){
+      input.value = iframeDoc.querySelector(`[data-id="${selected[0].dataset.id}"]`).textContent;
+    } else{
+      input.value = iframeDoc.querySelector(`[data-id="${selected[0].dataset.id}"]`).getAttribute(input.placeholder);
+    }
+  });
+}
+
+downloadHTML.addEventListener('click', ()=>{
+  var body = iframeDoc.body.innerHTML;
+  var stil = '';
+
+  for(let i=0; i<rules.length; i++){
+    stil += rules[i].cssText+'\n';
+  }
+
+  var html = `<style>${stil}</style> ${body}`;
+
+  const blob = new Blob([html], {type: 'text/html'});
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'result.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+});
+
+</script>
